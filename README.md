@@ -9,7 +9,7 @@ and others.
 Clone everything, including submodules:
 
 ```bash
-$ git clone --recursive https://github.com/arashbm/dag.git
+$ git clone --recursive https://github.com/arashbm/covid.git
 ```
 
 Compile the library and run the tests:
