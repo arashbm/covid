@@ -1,0 +1,18 @@
+#ifndef INCLUDE_COVID_CONFIG_HPP_
+#define INCLUDE_COVID_CONFIG_HPP_
+
+#include "metapop.hpp"
+
+namespace covid {
+  struct config {
+    double pi, eta, theta, nu, rho, chi, delta;
+
+    double beta_infected, beta_asymptomatic, kappa;
+
+    ContactMatrixType contact = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+
+    config() = default;
+  };
+}  // namespace covid
+
+#endif  // INCLUDE_COVID_CONFIG_HPP_
