@@ -9,9 +9,9 @@ namespace covid {
     for (auto&& h: all_age_groups) {
       double x_h = contact_making_population(h, c);
       lambda += contacts[g][h]*
-        (c.beta_asymptomatic*_population[h][compartments::asymptomatic]/x_h +
-         c.beta_presymptomatic*_population[h][compartments::presymptomatic]/x_h +
-         c.beta_infected*c.kappa*_population[h][compartments::infected]/x_h);
+        (c.beta_asymptomatic*_population[h][compartments::asymptomatic] +
+         c.beta_presymptomatic*_population[h][compartments::presymptomatic] +
+         c.beta_infected*c.kappa*_population[h][compartments::infected])/x_h;
     }
     return lambda;
   }

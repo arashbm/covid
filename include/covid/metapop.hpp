@@ -7,14 +7,14 @@
 
 namespace covid {
   enum class compartments : size_t {
-    susceptible,    // (S)
-    exposed,        // (E)
-    asymptomatic,   // (A)
-    presymptomatic, // (P)
-    infected,       // (I)
-    hospitalized,   // (H) in ICU
-    dead,           // (D)
-    recovered,      // (R)
+    susceptible,     // (S)
+    exposed,         // (E)
+    asymptomatic,    // (A)
+    presymptomatic,  // (P)
+    infected,        // (I)
+    hospitalized,    // (H) in ICU
+    dead,            // (D)
+    recovered,       // (R)
   };
 
   constexpr std::array<compartments, 8> all_compartments = {

@@ -71,7 +71,6 @@ TEST_CASE("patch", "[covid::patch]") {
   }
 
   SECTION("full distancing") {
-
     conf.contact = covid::ContactMatrixType({{
       {0.0, 0.0, 0.0},
       {0.0, 0.0, 0.0},
