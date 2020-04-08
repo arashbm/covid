@@ -14,8 +14,10 @@ TEST_CASE("patch", "[covid::patch]") {
   conf.rho = 1.0/2.0;
   conf.chi = 1.0/10.0;
   conf.delta = 1.0/7.0;
+  conf.delta = 1.0/5.0;
   conf.beta_infected = 0.06;
   conf.beta_asymptomatic = 0.06;
+  conf.beta_presymptomatic = 0.06;
   conf.kappa = 0.2;
   conf.contact = covid::ContactMatrixType({{
     {0.5, 0.4, 0.1},
@@ -24,10 +26,10 @@ TEST_CASE("patch", "[covid::patch]") {
 
   SECTION("no infectious person in population") {
     covid::patch patch({
-        // S,  E,  A,  I,  H,    D,    R
-        {100., 0., 0., 0., 100., 100., 100.},  // Young
-        {100., 0., 0., 0., 100., 100., 100.},  // Adults
-        {100., 0., 0., 0., 100., 100., 100.},  // Elderly
+        // S,  E,  A,  P,  I,  H,    D,    R
+        {100., 0., 0., 0., 0., 100., 100., 100.},  // Young
+        {100., 0., 0., 0., 0., 100., 100., 100.},  // Adults
+        {100., 0., 0., 0., 0., 100., 100., 100.},  // Elderly
       });
 
     auto delta = patch.delta_population(conf);
@@ -50,12 +52,13 @@ TEST_CASE("patch", "[covid::patch]") {
   SECTION("R0 is zero") {
     conf.beta_infected = 0.0;
     conf.beta_asymptomatic = 0.0;
+    conf.beta_presymptomatic = 0.0;
 
     covid::patch patch({
-        // S,  E,  A,   I,   H,  D,  R
-        {100., 0., 10., 10., 0., 0., 0.},  // Young
-        {100., 0., 10., 10., 0., 0., 0.},  // Adults
-        {100., 0., 10., 10., 0., 0., 0.},  // Elderly
+        // S,  E,  A,   P,   I,   H,  D,  R
+        {100., 0., 10., 10., 10., 0., 0., 0.},  // Young
+        {100., 0., 10., 10., 10., 0., 0., 0.},  // Adults
+        {100., 0., 10., 10., 10., 0., 0., 0.},  // Elderly
       });
 
     auto delta = patch.delta_population(conf);
@@ -68,13 +71,17 @@ TEST_CASE("patch", "[covid::patch]") {
   }
 
   SECTION("full distancing") {
-    conf.kappa = 0.0;
+
+    conf.contact = covid::ContactMatrixType({{
+      {0.0, 0.0, 0.0},
+      {0.0, 0.0, 0.0},
+      {0.0, 0.0, 0.0}}});
 
     covid::patch patch({
-        // S,  E,  A,   I,   H,  D,  R
-        {100., 0., 10., 10., 0., 0., 0.},  // Young
-        {100., 0., 10., 10., 0., 0., 0.},  // Adults
-        {100., 0., 10., 10., 0., 0., 0.},  // Elderly
+        // S,  E,  A,   P,   I,   H,  D,  R
+        {100., 0., 10., 10., 10., 0., 0., 0.},  // Young
+        {100., 0., 10., 10., 10., 0., 0., 0.},  // Adults
+        {100., 0., 10., 10., 10., 0., 0., 0.},  // Elderly
       });
 
     auto delta = patch.delta_population(conf);
@@ -82,14 +89,6 @@ TEST_CASE("patch", "[covid::patch]") {
     for (auto&& g: covid::all_age_groups) {
         REQUIRE_THAT(
             delta[g][covid::compartments::exposed],
-            WithinAbs(0.0, 1e-5));
-
-        REQUIRE_THAT(
-            delta[g][covid::compartments::asymptomatic],
-            WithinAbs(0.0, 1e-5));
-
-        REQUIRE_THAT(
-            delta[g][covid::compartments::infected],
             WithinAbs(0.0, 1e-5));
     }
   }

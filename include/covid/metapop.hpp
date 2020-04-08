@@ -3,21 +3,25 @@
 
 #include <array>
 
+#include "categorical_array.hpp"
+
 namespace covid {
   enum class compartments : size_t {
     susceptible,    // (S)
     exposed,        // (E)
     asymptomatic,   // (A)
+    presymptomatic, // (P)
     infected,       // (I)
     hospitalized,   // (H) in ICU
     dead,           // (D)
     recovered,      // (R)
   };
 
-  constexpr std::array<compartments, 7> all_compartments = {
+  constexpr std::array<compartments, 8> all_compartments = {
     compartments::susceptible,
     compartments::exposed,
     compartments::asymptomatic,
+    compartments::presymptomatic,
     compartments::infected,
     compartments::hospitalized,
     compartments::dead,
@@ -37,33 +41,10 @@ namespace covid {
   };
 
 
-
-
-  template <class T, class I, size_t size>
-  class array {
-  private:
-    std::array<T, size> _ar;
-  public:
-    array() {
-      _ar.fill(T{});
-    }
-
-    array(std::initializer_list<T> args) {
-      auto it = _ar.begin();
-      for (auto&& i: args) {
-        *it = i;
-        it++;
-      }
-    }
-
-    const T& operator[](I ind) const { return _ar[static_cast<size_t>(ind)]; }
-    T& operator[](I ind) { return _ar[static_cast<size_t>(ind)]; }
-  };
-
   template <typename T>
-  using AgeArrayType = array<T, age_groups, all_age_groups.size()>;
+  using AgeArrayType = categorical_array<T, age_groups, all_age_groups.size()>;
 
-  using ContactMatrixType = array<AgeArrayType<double>,
+  using ContactMatrixType = categorical_array<AgeArrayType<double>,
         age_groups, all_age_groups.size()>;
 }  // namespace covid
 

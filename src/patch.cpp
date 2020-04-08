@@ -10,6 +10,7 @@ namespace covid {
       double x_h = contact_making_population(h, c);
       lambda += contacts[g][h]*
         (c.beta_asymptomatic*_population[h][compartments::asymptomatic]/x_h +
+         c.beta_presymptomatic*_population[h][compartments::presymptomatic]/x_h +
          c.beta_infected*c.kappa*_population[h][compartments::infected]/x_h);
     }
     return lambda;
@@ -32,6 +33,7 @@ namespace covid {
   double patch::contact_making_population(age_groups g, const config& c) const {
     return _population[g][compartments::susceptible]
       + _population[g][compartments::exposed]
+      + _population[g][compartments::presymptomatic]
       + _population[g][compartments::asymptomatic]
       + _population[g][compartments::recovered]
       + c.kappa*_population[g][compartments::infected];
@@ -59,10 +61,14 @@ namespace covid {
 
       delta[g][compartments::asymptomatic] =
         +(1.0-c.pi)*c.eta*_population[g][compartments::exposed]
-        -c.rho*_population[g][compartments::asymptomatic];
+        -c.rho*_population[g][compartments::presymptomatic];
+
+      delta[g][compartments::presymptomatic] =
+        +c.rho*c.eta*_population[g][compartments::exposed]
+        -c.alpha*_population[g][compartments::presymptomatic];
 
       delta[g][compartments::infected] =
-        +c.rho*c.eta*_population[g][compartments::exposed]
+        +c.alpha*_population[g][compartments::presymptomatic]
         -(c.theta+c.nu)*_population[g][compartments::infected];
 
       delta[g][compartments::hospitalized] =
@@ -80,9 +86,9 @@ namespace covid {
     return delta;
   }
 
-  void patch::apply_delta(const PopulationMatrixType& pop_delta, double dt) {
+  void patch::apply_delta(const PopulationMatrixType& pop_delta) {
     for (auto&& g: all_age_groups)
       for (auto&& c: all_compartments)
-        _population[g][c] += pop_delta[g][c]*dt;
+        _population[g][c] += pop_delta[g][c];
   }
 }  // namespace covid

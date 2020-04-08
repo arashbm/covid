@@ -3,18 +3,19 @@
 
 #include "metapop.hpp"
 #include "config.hpp"
+#include "categorical_array.hpp"
 
 namespace covid {
   class patch {
   public:
     using PopulationMatrixType = AgeArrayType<
-      array<double, compartments, all_compartments.size()>>;
+      categorical_array<double, compartments, all_compartments.size()>>;
 
     explicit patch(const PopulationMatrixType& population);
 
     const PopulationMatrixType& population() const;
     PopulationMatrixType delta_population(const config& c) const;
-    void apply_delta(const PopulationMatrixType& pop_delta, double dt);
+    void apply_delta(const PopulationMatrixType& pop_delta);
   private:
     PopulationMatrixType _population;  // population[age_group][compartment]
 

@@ -5,9 +5,9 @@
 
 namespace covid {
   struct config {
-    double pi, eta, theta, nu, rho, chi, delta;
+    double pi, eta, theta, nu, rho, chi, delta, alpha;
 
-    double beta_infected, beta_asymptomatic, kappa;
+    double beta_infected, beta_asymptomatic, beta_presymptomatic, kappa;
 
     ContactMatrixType contact = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
 
