@@ -46,11 +46,12 @@ clean:
 
 .PHONY: figures
 figures: municipalities
-	$(eval TMPDIR := $(shell mktemp -d))
-	@mkdir $(TMPDIR)
-	./municipalities > $(TMPDIR)/municipalities.csv
-	python visualisations/spreading.py $(TMPDIR)/municipalities.csv
-	$(shell rm -rf $(TMPDIR))
+	$(eval RESDIR := $(shell mktemp -d))
+	@mkdir $(RESDIR)
+	./municipalities > $(RESDIR)/municipalities.csv
+	@mkdir -p figures
+	python visualisations/spreading.py $(RESDIR)/municipalities.csv
+	$(shell rm -rf $(RESDIR))
 
 municipalities: $(OBJDIR)/patch.o $(OBJDIR)/municipalities.o
 	$(LINK.o)
