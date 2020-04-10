@@ -9,6 +9,7 @@ namespace covid {
   class categorical_array {
   private:
     std::array<T, size> _ar;
+
   public:
     categorical_array() {
       _ar.fill(T{});
@@ -18,7 +19,7 @@ namespace covid {
       if (size != args.size())
         throw std::length_error("Argument list size does not match array size");
 
-      for (size_t i=0; i<size; i++)
+      for (size_t i = 0; i < size; i++)
         _ar[i] = *(args.begin()+i);
     }
 
@@ -26,9 +27,9 @@ namespace covid {
     T& operator[](I ind) { return _ar[static_cast<size_t>(ind)]; }
 
     // summs across first axis
-    T sum() const{
+    T sum() const {
       T s{};
-      for (size_t i=0; i<size; i++)
+      for (size_t i = 0; i < size; i++)
         s += _ar[i];
       return s;
     }
@@ -101,28 +102,27 @@ namespace covid {
     }
 
     // floating point
-    _covid_define_numeric_multiplication(float)
-    _covid_define_numeric_multiplication(double)
-    _covid_define_numeric_multiplication(long double)
+    _covid_define_numeric_multiplication(float)               //NOLINT
+    _covid_define_numeric_multiplication(double)              //NOLINT
+    _covid_define_numeric_multiplication(long double)         //NOLINT
 
     // integral
-    _covid_define_numeric_multiplication(bool)
-    _covid_define_numeric_multiplication(char)
-    _covid_define_numeric_multiplication(signed char)
-    _covid_define_numeric_multiplication(unsigned char)
-    _covid_define_numeric_multiplication(wchar_t)
-    _covid_define_numeric_multiplication(char16_t)
-    _covid_define_numeric_multiplication(char32_t)
-    _covid_define_numeric_multiplication(short)
-    _covid_define_numeric_multiplication(int)
-    _covid_define_numeric_multiplication(long)
-    _covid_define_numeric_multiplication(long long)
-    _covid_define_numeric_multiplication(unsigned short)
-    _covid_define_numeric_multiplication(unsigned int)
-    _covid_define_numeric_multiplication(unsigned long)
-    _covid_define_numeric_multiplication(unsigned long long)
+    _covid_define_numeric_multiplication(bool)                //NOLINT
+    _covid_define_numeric_multiplication(char)                //NOLINT
+    _covid_define_numeric_multiplication(signed char)         //NOLINT
+    _covid_define_numeric_multiplication(unsigned char)       //NOLINT
+    _covid_define_numeric_multiplication(wchar_t)             //NOLINT
+    _covid_define_numeric_multiplication(char16_t)            //NOLINT
+    _covid_define_numeric_multiplication(char32_t)            //NOLINT
+    _covid_define_numeric_multiplication(short)               //NOLINT
+    _covid_define_numeric_multiplication(int)                 //NOLINT
+    _covid_define_numeric_multiplication(long)                //NOLINT
+    _covid_define_numeric_multiplication(long long)           //NOLINT
+    _covid_define_numeric_multiplication(unsigned short)      //NOLINT
+    _covid_define_numeric_multiplication(unsigned int)        //NOLINT
+    _covid_define_numeric_multiplication(unsigned long)       //NOLINT
+    _covid_define_numeric_multiplication(unsigned long long)  //NOLINT
 #undef _covid_define_numeric_multiplication
-
   };
 }  // namespace covid
 
@@ -136,26 +136,26 @@ namespace covid {
     }
 
     // floating point
-    _covid_define_reverse_numeric_multiplication(float)
-    _covid_define_reverse_numeric_multiplication(double)
-    _covid_define_reverse_numeric_multiplication(long double)
+    _covid_define_reverse_numeric_multiplication(float)               //NOLINT
+    _covid_define_reverse_numeric_multiplication(double)              //NOLINT
+    _covid_define_reverse_numeric_multiplication(long double)         //NOLINT
 
     // integral
-    _covid_define_reverse_numeric_multiplication(bool)
-    _covid_define_reverse_numeric_multiplication(char)
-    _covid_define_reverse_numeric_multiplication(signed char)
-    _covid_define_reverse_numeric_multiplication(unsigned char)
-    _covid_define_reverse_numeric_multiplication(wchar_t)
-    _covid_define_reverse_numeric_multiplication(char16_t)
-    _covid_define_reverse_numeric_multiplication(char32_t)
-    _covid_define_reverse_numeric_multiplication(short)
-    _covid_define_reverse_numeric_multiplication(int)
-    _covid_define_reverse_numeric_multiplication(long)
-    _covid_define_reverse_numeric_multiplication(long long)
-    _covid_define_reverse_numeric_multiplication(unsigned short)
-    _covid_define_reverse_numeric_multiplication(unsigned int)
-    _covid_define_reverse_numeric_multiplication(unsigned long)
-    _covid_define_reverse_numeric_multiplication(unsigned long long)
+    _covid_define_reverse_numeric_multiplication(bool)                //NOLINT
+    _covid_define_reverse_numeric_multiplication(char)                //NOLINT
+    _covid_define_reverse_numeric_multiplication(signed char)         //NOLINT
+    _covid_define_reverse_numeric_multiplication(unsigned char)       //NOLINT
+    _covid_define_reverse_numeric_multiplication(wchar_t)             //NOLINT
+    _covid_define_reverse_numeric_multiplication(char16_t)            //NOLINT
+    _covid_define_reverse_numeric_multiplication(char32_t)            //NOLINT
+    _covid_define_reverse_numeric_multiplication(short)               //NOLINT
+    _covid_define_reverse_numeric_multiplication(int)                 //NOLINT
+    _covid_define_reverse_numeric_multiplication(long)                //NOLINT
+    _covid_define_reverse_numeric_multiplication(long long)           //NOLINT
+    _covid_define_reverse_numeric_multiplication(unsigned short)      //NOLINT
+    _covid_define_reverse_numeric_multiplication(unsigned int)        //NOLINT
+    _covid_define_reverse_numeric_multiplication(unsigned long)       //NOLINT
+    _covid_define_reverse_numeric_multiplication(unsigned long long)  //NOLINT
 #undef _covid_define_reverse_numeric_multiplication
 
 #endif  // INCLUDE_COVID_CATEGORICAL_ARRAY_HPP_

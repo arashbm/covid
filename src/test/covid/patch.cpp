@@ -1,12 +1,12 @@
 #include "catch.hpp"
 
-#include "../../../include/covid/config.hpp"
-#include "../../../include/covid/patch.hpp"
+#include "../../../include/covid/kisdi/config.hpp"
+#include "../../../include/covid/kisdi/patch.hpp"
 
 using Catch::Matchers::WithinAbs;
 
-TEST_CASE("patch", "[covid::patch]") {
-  covid::config conf;
+TEST_CASE("patch", "[covid::kisdi::patch]") {
+  covid::kisdi::config conf;
   conf.pi = 1.0/2.0;
   conf.eta = 1.0/2.34;
   conf.theta = 0.05;
@@ -20,13 +20,13 @@ TEST_CASE("patch", "[covid::patch]") {
   conf.beta_asymptomatic = 0.06;
   conf.beta_presymptomatic = 0.06;
   conf.kappa = 0.2;
-  conf.contact = covid::ContactMatrixType({{
+  conf.contact = covid::kisdi::ContactMatrixType({{
     {0.5, 0.4, 0.1},
     {0.3, 0.6, 0.1},
     {0.2, 0.6, 0.2}}});
 
   SECTION("initialisation") {
-    covid::patch patch({
+    covid::kisdi::patch patch({
         {1., 2., 3., 4., 5., 6., 7., 8.},
         {1., 2., 3., 4., 5., 6., 7., 8.},
         {1., 2., 3., 4., 5., 6., 7., 8.},
@@ -34,20 +34,20 @@ TEST_CASE("patch", "[covid::patch]") {
 
     auto p = patch.population();
 
-    for (auto&& g: covid::all_age_groups) {
-      REQUIRE(p[g][covid::compartments::susceptible]    == 1.0);
-      REQUIRE(p[g][covid::compartments::exposed]        == 2.0);
-      REQUIRE(p[g][covid::compartments::asymptomatic]   == 3.0);
-      REQUIRE(p[g][covid::compartments::presymptomatic] == 4.0);
-      REQUIRE(p[g][covid::compartments::infected]       == 5.0);
-      REQUIRE(p[g][covid::compartments::hospitalized]   == 6.0);
-      REQUIRE(p[g][covid::compartments::dead]           == 7.0);
-      REQUIRE(p[g][covid::compartments::recovered]      == 8.0);
+    for (auto&& g: covid::kisdi::all_age_groups) {
+      REQUIRE(p[g][covid::kisdi::compartments::susceptible]    == 1.0);
+      REQUIRE(p[g][covid::kisdi::compartments::exposed]        == 2.0);
+      REQUIRE(p[g][covid::kisdi::compartments::asymptomatic]   == 3.0);
+      REQUIRE(p[g][covid::kisdi::compartments::presymptomatic] == 4.0);
+      REQUIRE(p[g][covid::kisdi::compartments::infected]       == 5.0);
+      REQUIRE(p[g][covid::kisdi::compartments::hospitalized]   == 6.0);
+      REQUIRE(p[g][covid::kisdi::compartments::dead]           == 7.0);
+      REQUIRE(p[g][covid::kisdi::compartments::recovered]      == 8.0);
     }
   }
 
   SECTION("delta == 0") {
-    covid::patch patch({
+    covid::kisdi::patch patch({
         {1., 2., 3., 4., 5., 6., 7., 8.},
         {1., 2., 3., 4., 5., 6., 7., 8.},
         {1., 2., 3., 4., 5., 6., 7., 8.},
@@ -55,12 +55,12 @@ TEST_CASE("patch", "[covid::patch]") {
 
     auto delta = patch.delta_population(conf);
 
-    for (auto&& g: covid::all_age_groups)
+    for (auto&& g: covid::kisdi::all_age_groups)
       REQUIRE_THAT(delta[g].sum(), WithinAbs(0.0, 1e-10));
   }
 
   SECTION("no infectious person in population") {
-    covid::patch patch({
+    covid::kisdi::patch patch({
         // S,  E,  A,  P,  I,  H,    D,    R
         {100., 0., 0., 0., 0., 100., 100., 100.},  // Young
         {100., 0., 0., 0., 0., 100., 100., 100.},  // Adults
@@ -69,17 +69,17 @@ TEST_CASE("patch", "[covid::patch]") {
 
     auto delta = patch.delta_population(conf);
 
-    for (auto&& g: covid::all_age_groups) {
+    for (auto&& g: covid::kisdi::all_age_groups) {
         REQUIRE_THAT(
-            delta[g][covid::compartments::exposed],
+            delta[g][covid::kisdi::compartments::exposed],
             WithinAbs(0.0, 1e-5));
 
         REQUIRE_THAT(
-            delta[g][covid::compartments::asymptomatic],
+            delta[g][covid::kisdi::compartments::asymptomatic],
             WithinAbs(0.0, 1e-5));
 
         REQUIRE_THAT(
-            delta[g][covid::compartments::infected],
+            delta[g][covid::kisdi::compartments::infected],
             WithinAbs(0.0, 1e-5));
     }
   }
@@ -89,7 +89,7 @@ TEST_CASE("patch", "[covid::patch]") {
     conf.beta_asymptomatic = 0.0;
     conf.beta_presymptomatic = 0.0;
 
-    covid::patch patch({
+    covid::kisdi::patch patch({
         // S,  E,  A,   P,   I,   H,  D,  R
         {100., 0., 10., 10., 10., 0., 0., 0.},  // Young
         {100., 0., 10., 10., 10., 0., 0., 0.},  // Adults
@@ -98,20 +98,20 @@ TEST_CASE("patch", "[covid::patch]") {
 
     auto delta = patch.delta_population(conf);
 
-    for (auto&& g: covid::all_age_groups) {
+    for (auto&& g: covid::kisdi::all_age_groups) {
         REQUIRE_THAT(
-            delta[g][covid::compartments::exposed],
+            delta[g][covid::kisdi::compartments::exposed],
             WithinAbs(0.0, 1e-5));
     }
   }
 
   SECTION("full distancing") {
-    conf.contact = covid::ContactMatrixType({{
+    conf.contact = covid::kisdi::ContactMatrixType({{
       {0.0, 0.0, 0.0},
       {0.0, 0.0, 0.0},
       {0.0, 0.0, 0.0}}});
 
-    covid::patch patch({
+    covid::kisdi::patch patch({
         // S,  E,  A,   P,   I,   H,  D,  R
         {100., 0., 10., 10., 10., 0., 0., 0.},  // Young
         {100., 0., 10., 10., 10., 0., 0., 0.},  // Adults
@@ -120,9 +120,9 @@ TEST_CASE("patch", "[covid::patch]") {
 
     auto delta = patch.delta_population(conf);
 
-    for (auto&& g: covid::all_age_groups) {
+    for (auto&& g: covid::kisdi::all_age_groups) {
         REQUIRE_THAT(
-            delta[g][covid::compartments::exposed],
+            delta[g][covid::kisdi::compartments::exposed],
             WithinAbs(0.0, 1e-5));
     }
   }

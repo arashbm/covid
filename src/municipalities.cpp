@@ -4,25 +4,26 @@
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
-#pragma GCC diagnostic ignored "-Wunknown-pragmas" // not working (gcc #53431)
+#pragma GCC diagnostic ignored "-Wunknown-pragmas"  // not working (gcc bug?)
 #include "csv.hpp"
 #pragma GCC diagnostic pop
 
-#include "../include/covid/metapop.hpp"
-#include "../include/covid/patch.hpp"
+#include "../include/covid/kisdi/metapop.hpp"
+#include "../include/covid/kisdi/config.hpp"
+#include "../include/covid/kisdi/patch.hpp"
 
-std::unordered_map<std::string, covid::patch>
+std::unordered_map<std::string, covid::kisdi::patch>
 create_patches(std::string population_filename) {
   csv::CSVReader reader(population_filename);
 
   // FIXME: I would've used header instead of numerical indecies
-  std::unordered_map<covid::age_groups, std::vector<size_t>>
+  std::unordered_map<covid::kisdi::age_groups, std::vector<size_t>>
     age_group_columns = {
-      {covid::age_groups::young,   {2, 3, 4, 5, 6, 7, 8}},
-      {covid::age_groups::adults,  {9, 10, 11, 12, 13, 14, 15, 16}},
-      {covid::age_groups::elderly, {17, 18, 19, 20, 21, 22}}};
+      {covid::kisdi::age_groups::young,   {2, 3, 4, 5, 6, 7, 8}},
+      {covid::kisdi::age_groups::adults,  {9, 10, 11, 12, 13, 14, 15, 16}},
+      {covid::kisdi::age_groups::elderly, {17, 18, 19, 20, 21, 22}}};
 
-  covid::patch::PopulationMatrixType pop;
+  covid::kisdi::patch::PopulationMatrixType pop;
 
   // FIXME: Persumably we should read this from a source rather than guessing
   double presymptomatic_p = 4000/5.51e6,
@@ -35,27 +36,27 @@ create_patches(std::string population_filename) {
   double susceptible_p = 1.0 - presymptomatic_p - infected_p - exposed_p
     - asymptomatic_p - dead_p - hospitalized_p - recovered_p;
 
-  std::unordered_map<std::string, covid::patch> patches;
+  std::unordered_map<std::string, covid::kisdi::patch> patches;
   for (auto&& row: reader) {
-    for (auto&& g: covid::all_age_groups) {
+    for (auto&& g: covid::kisdi::all_age_groups) {
       double total_pop_g = 0;
       for (size_t c: age_group_columns[g])
         total_pop_g += row[c].get<double>();
-      pop[g][covid::compartments::susceptible] =
+      pop[g][covid::kisdi::compartments::susceptible] =
         total_pop_g*susceptible_p;
-      pop[g][covid::compartments::exposed] =
+      pop[g][covid::kisdi::compartments::exposed] =
         total_pop_g*exposed_p;
-      pop[g][covid::compartments::asymptomatic] =
+      pop[g][covid::kisdi::compartments::asymptomatic] =
         total_pop_g*asymptomatic_p;
-      pop[g][covid::compartments::presymptomatic] =
+      pop[g][covid::kisdi::compartments::presymptomatic] =
         total_pop_g*presymptomatic_p;
-      pop[g][covid::compartments::infected] =
+      pop[g][covid::kisdi::compartments::infected] =
         total_pop_g*infected_p;
-      pop[g][covid::compartments::hospitalized] =
+      pop[g][covid::kisdi::compartments::hospitalized] =
         total_pop_g*hospitalized_p;
-      pop[g][covid::compartments::dead] =
+      pop[g][covid::kisdi::compartments::dead] =
         total_pop_g*dead_p;
-      pop[g][covid::compartments::recovered] =
+      pop[g][covid::kisdi::compartments::recovered] =
         total_pop_g*recovered_p;
     }
     patches.try_emplace(row[0].get<>(), pop);
@@ -91,10 +92,11 @@ create_mobility_lists(std::string population_filename) {
 
   for (auto &[i, pop_i]: pop) {
     for (auto &[j, pop_j]: pop) {
-      in_mobility[i].emplace_back(j,
-          total_trips_per_day*pop_i*pop_j/normalization_factor);
-      out_mobility[j].emplace_back(i,
-          total_trips_per_day*pop_i*pop_j/normalization_factor);
+      double trips = total_trips_per_day*pop_i*pop_j/normalization_factor;
+      if (trips > 100) {
+        in_mobility[i].emplace_back(j, trips);
+        out_mobility[j].emplace_back(i, trips);
+      }
     }
   }
 
@@ -102,22 +104,21 @@ create_mobility_lists(std::string population_filename) {
 }
 
 // FIXME: Persumably we should read this from a file
-covid::config create_config() {
-  covid::config conf;
-  conf.pi = 1.0/2.0;
-  conf.eta = 1.0/2.34;
-  conf.theta = 0.05;
-  conf.alpha = 1/3.0;
+covid::kisdi::config create_config() {
+  covid::kisdi::config conf;
+  conf.pi = 0.60;
+  conf.eta = 1.0/3.0;
+  conf.theta = 1/8.0;
+  conf.alpha = 1/2.0;
   conf.nu = 1/2.86;
-  conf.rho = 1.0/2.0;
+  conf.rho = 1.0/5.0;
   conf.chi = 1.0/10.0;
   conf.delta = 1.0/7.0;
-  conf.delta = 1.0/5.0;
   conf.beta_infected = 0.06;
   conf.beta_asymptomatic = 0.06;
   conf.beta_presymptomatic = 0.06;
   conf.kappa = 0.2;
-  conf.contact = covid::ContactMatrixType({{
+  conf.contact = covid::kisdi::ContactMatrixType({{
     {0.5, 0.4, 0.1},
     {0.3, 0.6, 0.1},
     {0.2, 0.6, 0.2}}});
@@ -126,20 +127,21 @@ covid::config create_config() {
 }
 
 void report_totals(double t,
-    const std::unordered_map<std::string, covid::patch>& patches) {
+    const std::unordered_map<std::string, covid::kisdi::patch>& patches) {
   covid::categorical_array<
-    double, covid::compartments, covid::all_compartments.size()> totals;
+    double, covid::kisdi::compartments, covid::kisdi::all_compartments.size()>
+    totals;
   for (auto& p: patches)
     totals += p.second.population().sum();
 
   std::cout << t << " " << totals.sum();
-  for (auto&& c: covid::all_compartments)
+  for (auto&& c: covid::kisdi::all_compartments)
     std::cout << " " << totals[c];
   std::cout << "\n";
 }
 
 int main(/* int argc , char* argv[]*/) {
-  std::unordered_map<std::string, covid::patch>
+  std::unordered_map<std::string, covid::kisdi::patch>
     patches = create_patches("data/municipalities.csv");
 
   std::cout << "t total susceptible exposed asymptomatic presymptomatic "
@@ -148,14 +150,14 @@ int main(/* int argc , char* argv[]*/) {
 
   auto [in_mob, out_mob] = create_mobility_lists("data/municipalities.csv");
 
-  covid::config conf = create_config();
+  covid::kisdi::config conf = create_config();
 
-  double dt = 0.1, t_max = 100;
+  int dt = 1, t_max = 24*100;
+  int report_dt = 24, next_report = 24;
 
-  double report_dt = 1.0, next_report = 1.0;
-
-  for (double t = dt; t < t_max; t += dt) {
-    std::vector<std::pair<std::string, covid::patch::PopulationMatrixType>>
+  for (int t = dt; t < t_max; t += dt) {
+    std::vector<
+      std::pair<std::string, covid::kisdi::patch::PopulationMatrixType>>
       deltas;
 
     for (auto &[i, patch_i]: patches) {
@@ -171,11 +173,11 @@ int main(/* int argc , char* argv[]*/) {
     }
 
     for (auto& [i, delta]: deltas)
-      patches.at(i).apply_delta(delta*dt);
+      patches.at(i).apply_delta(delta*(static_cast<double>(dt)/24.0));
 
-    if (t <= next_report && t + report_dt > next_report) {
+    if (t == next_report) {
       next_report += report_dt;
-      report_totals(t, patches);
+      report_totals(static_cast<double>(t)/24.0, patches);
     }
   }
 }
