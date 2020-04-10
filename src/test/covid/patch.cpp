@@ -10,6 +10,7 @@ TEST_CASE("patch", "[covid::patch]") {
   conf.pi = 1.0/2.0;
   conf.eta = 1.0/2.34;
   conf.theta = 0.05;
+  conf.alpha = 1/3.0;
   conf.nu = 1/2.86;
   conf.rho = 1.0/2.0;
   conf.chi = 1.0/10.0;
@@ -23,6 +24,40 @@ TEST_CASE("patch", "[covid::patch]") {
     {0.5, 0.4, 0.1},
     {0.3, 0.6, 0.1},
     {0.2, 0.6, 0.2}}});
+
+  SECTION("initialisation") {
+    covid::patch patch({
+        {1., 2., 3., 4., 5., 6., 7., 8.},
+        {1., 2., 3., 4., 5., 6., 7., 8.},
+        {1., 2., 3., 4., 5., 6., 7., 8.},
+      });
+
+    auto p = patch.population();
+
+    for (auto&& g: covid::all_age_groups) {
+      REQUIRE(p[g][covid::compartments::susceptible]    == 1.0);
+      REQUIRE(p[g][covid::compartments::exposed]        == 2.0);
+      REQUIRE(p[g][covid::compartments::asymptomatic]   == 3.0);
+      REQUIRE(p[g][covid::compartments::presymptomatic] == 4.0);
+      REQUIRE(p[g][covid::compartments::infected]       == 5.0);
+      REQUIRE(p[g][covid::compartments::hospitalized]   == 6.0);
+      REQUIRE(p[g][covid::compartments::dead]           == 7.0);
+      REQUIRE(p[g][covid::compartments::recovered]      == 8.0);
+    }
+  }
+
+  SECTION("delta == 0") {
+    covid::patch patch({
+        {1., 2., 3., 4., 5., 6., 7., 8.},
+        {1., 2., 3., 4., 5., 6., 7., 8.},
+        {1., 2., 3., 4., 5., 6., 7., 8.},
+      });
+
+    auto delta = patch.delta_population(conf);
+
+    for (auto&& g: covid::all_age_groups)
+      REQUIRE_THAT(delta[g].sum(), WithinAbs(0.0, 1e-10));
+  }
 
   SECTION("no infectious person in population") {
     covid::patch patch({

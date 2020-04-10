@@ -1,3 +1,6 @@
 [submodule "dep/catch2"]
 	path = dep/catch2
 	url = https://github.com/catchorg/Catch2.git
+[submodule "dep/csv-parser"]
+	path = dep/csv-parser
+	url = git@github.com:vincentlaucsb/csv-parser.git

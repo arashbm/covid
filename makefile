@@ -12,13 +12,15 @@ TSTDIR := $(SRCDIR)/test/covid
 CXX = g++
 CC = $(CXX)
 CXXFLAGS = -Werror -Wall -Wextra -Wconversion \
+					 -Wno-unknown-pragmas \
 					 -O3 \
 					 -std=c++17 \
 					 -g\
-					 -Idep/catch2/single_include/catch2
+					 -Idep/catch2/single_include/catch2 \
+					 -Idep/csv-parser/single_include/
 
 LD = $(CXX)
-# LDLIBS = -static-libstdc++
+LDLIBS = -static-libstdc++ -lpthread
 
 
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.Td
@@ -42,9 +44,20 @@ lint:
 clean:
 	$(RM) -r $(OBJDIR) $(DEPDIR)
 
+.PHONY: figures
+figures: municipalities
+	$(eval TMPDIR := $(shell mktemp -d))
+	@mkdir $(TMPDIR)
+	./municipalities > $(TMPDIR)/municipalities.csv
+	python visualisations/spreading.py $(TMPDIR)/municipalities.csv
+	$(shell rm -rf $(TMPDIR))
+
+municipalities: $(OBJDIR)/patch.o $(OBJDIR)/municipalities.o
+	$(LINK.o)
 
 tests: $(TSTOBJDIR)/tests.o \
 			 $(TSTOBJDIR)/patch.o \
+			 $(TSTOBJDIR)/categorical_array.o \
 			 $(OBJDIR)/patch.o
 	$(LINK.o)
 

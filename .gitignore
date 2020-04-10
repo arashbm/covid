@@ -32,3 +32,6 @@
 *.app
 
 tests
+municipalities
+figures/
+out/

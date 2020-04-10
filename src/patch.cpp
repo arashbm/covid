@@ -61,10 +61,10 @@ namespace covid {
 
       delta[g][compartments::asymptomatic] =
         +(1.0-c.pi)*c.eta*_population[g][compartments::exposed]
-        -c.rho*_population[g][compartments::presymptomatic];
+        -c.rho*_population[g][compartments::asymptomatic];
 
       delta[g][compartments::presymptomatic] =
-        +c.rho*c.eta*_population[g][compartments::exposed]
+        +c.pi*c.eta*_population[g][compartments::exposed]
         -c.alpha*_population[g][compartments::presymptomatic];
 
       delta[g][compartments::infected] =
@@ -75,20 +75,19 @@ namespace covid {
         +c.theta*_population[g][compartments::infected]
         -(c.chi+c.delta)*_population[g][compartments::hospitalized];
 
+      delta[g][compartments::dead] =
+        +c.delta*_population[g][compartments::hospitalized];
+
       delta[g][compartments::recovered] =
         +c.rho*_population[g][compartments::asymptomatic]
         +c.nu*_population[g][compartments::infected]
         +c.chi*_population[g][compartments::hospitalized];
-
-      delta[g][compartments::recovered] =
-        +c.delta*_population[g][compartments::hospitalized];
     }
+
     return delta;
   }
 
   void patch::apply_delta(const PopulationMatrixType& pop_delta) {
-    for (auto&& g: all_age_groups)
-      for (auto&& c: all_compartments)
-        _population[g][c] += pop_delta[g][c];
+    _population += pop_delta;
   }
 }  // namespace covid
