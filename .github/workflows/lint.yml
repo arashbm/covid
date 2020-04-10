@@ -17,6 +17,6 @@ jobs:
     - name: upgrade pip
       run: pip install --upgrade pip
     - name: install cpplint
-      run: pip install cpplint==1.4.4
+      run: pip install cpplint==1.4.5
     - name: make lint
       run: make lint
