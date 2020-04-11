@@ -51,7 +51,7 @@ namespace covid {
         categorical_array<age_array_type<double>,
           age_groups, all_age_groups.size()>;
     }  // namespace kisdi
-  }  // namespacee models
+  }  // namespace models
 }  // namespace covid
 
 #endif  // INCLUDE_COVID_MODELS_KISDI_METAPOP_HPP_
