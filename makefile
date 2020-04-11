@@ -53,13 +53,13 @@ figures: municipalities
 	python visualisations/spreading.py $(RESDIR)/municipalities.csv
 	$(shell rm -rf $(RESDIR))
 
-municipalities: $(OBJDIR)/patch.o $(OBJDIR)/municipalities.o
+municipalities: $(OBJDIR)/kisdi.o $(OBJDIR)/municipalities.o
 	$(LINK.o)
 
 tests: $(TSTOBJDIR)/tests.o \
-			 $(TSTOBJDIR)/patch.o \
+			 $(TSTOBJDIR)/kisdi.o \
 			 $(TSTOBJDIR)/categorical_array.o \
-			 $(OBJDIR)/patch.o
+			 $(OBJDIR)/kisdi.o
 	$(LINK.o)
 
 BUILD_DIRS := $(DEPDIR) $(TSTDEPDIR) $(OBJDIR) $(TSTOBJDIR)
