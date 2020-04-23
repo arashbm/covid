@@ -61,11 +61,27 @@ figures: kisdi_scenario
 		-c data/model-config-kisdi.csv \
 		-t 50 \
 		> $(RESDIR)/kisdi-country.csv
+	./arenas_scenario \
+		-p data/age-distribution-municipalities-arenas.csv \
+		-i data/initial-condition-municipalities-arenas.csv \
+		-c data/model-config-arenas.csv \
+		-t 50 \
+		> $(RESDIR)/arenas-municipalities.csv
+	./arenas_scenario \
+		-p data/age-distribution-whole-country-arenas.csv \
+		-i data/initial-condition-whole-country-arenas.csv \
+		-c data/model-config-arenas.csv \
+		-t 50 \
+		> $(RESDIR)/arenas-country.csv
 	@mkdir -p figures
 	python visualisations/spreading.py $(RESDIR)/kisdi-municipalities.csv \
 		> figures/kisdi-municipalities.pdf
 	python visualisations/spreading.py $(RESDIR)/kisdi-country.csv \
 		> figures/kisdi-country.pdf
+	python visualisations/spreading.py $(RESDIR)/arenas-municipalities.csv \
+		> figures/arenas-municipalities.pdf
+	python visualisations/spreading.py $(RESDIR)/arenas-country.csv \
+		> figures/arenas-country.pdf
 	$(shell rm -rf $(RESDIR))
 
 kisdi_scenario: $(OBJDIR)/kisdi.o \

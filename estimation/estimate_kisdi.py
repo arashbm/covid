@@ -12,6 +12,13 @@ from scipy import stats
 import elfi
 import matplotlib.pyplot as plt
 
+
+def deaths_column(a):
+    return a[:, :,0]
+
+def hospitalized_column(a):
+    return a[:, :,1]
+
 def simulate(
         population_filename, area_names, days,
         param_keys, ic_keys, *parameters, random_state=None):
@@ -57,7 +64,7 @@ def simulate(
 
 
         p = subprocess.run([
-                "../municipalities",
+                "../kisdi_scenario",
                 "-t", str(days),
                 "-i", initial_condition_filename,
                 "-c", model_config_filename,
@@ -80,11 +87,28 @@ def simulate(
         observations = []
         text = p.stdout.decode('utf-8').split('\n')
         for row in csv.DictReader(text, delimiter=' '):
-            observations.append((row['dead'], row['hospitalized']))
+            observations.append([
+                float(row['dead']),
+                float(row['hospitalized'])])
 
         return np.array(observations[:days])
 
-def sim_node(population_filename, observed):
+def kisdi_model(population_filename):
+    # (cumulative) deaths every day from 1st of march
+    deaths = [0]*20 + [1, 1, 1, 1, 3, 4, 7, 9, 11, 13, 17, 17, 19, 20, 25, 27,
+            27, 34, 40, 42, 47, 49, 56, 59, 64, 72, 75]
+
+    # In ICU
+    # hospitalized = [np.nan]*24 + [22, 24, 32, 31, 41, 49, 56, 62, 65, 72, 73,
+    #         76, 81, 83, 82, 82, 81, 80, 77, 74, 75, 75, 76]
+
+    # total hospitalized
+    hospitalized = [np.nan]*24 + [82, 96, 108, 112, 134, 143, 137, 159, 160,
+            180, 187, 209, 228, 231, 239, 244, 236, 235, 235, 230, 232, 226,
+            215]
+
+    observed = np.array([list(zip(deaths, hospitalized))])
+
     model = elfi.new_model()
     areas = set()
     with open(population_filename, newline='') as f:
@@ -132,15 +156,28 @@ def sim_node(population_filename, observed):
                         #         model=model)
 
 
-    sim_fun = elfi.tools.vectorize(simulate, constants=[0, 1, 2, 3, 4])
+    sim_fun = elfi.tools.vectorize(simulate, constants=[0, 1, 2, 3, 4],
+            dtype=np.float_)
     sim = elfi.Simulator(sim_fun,
-            population_filename, list(areas), observed.shape[0],
+            population_filename, list(areas), observed.shape[1],
             list(parameters), list(initial_condition_parameters),
             *parameters.values(), *initial_condition_parameters.values(),
-            observed = deaths)
+            observed = observed)
 
-    return model, sim,\
+    deaths = elfi.Summary(deaths_column, sim, model=model)
+    hospitalized = elfi.Summary(hospitalized_column, sim, model=model)
+
+    dist = elfi.Discrepancy(time_series_discrepancy,
+            deaths, hospitalized, model=model)
+
+    return model, dist,\
             univariate_params, multivar_params, initial_condition_parameters
+
+def time_series_discrepancy(deaths, hospitalized, observed):
+    e = np.zeros(shape=(deaths.shape[0],))
+    for s, o in [(deaths, observed[0]), (hospitalized, observed[1])]:
+        e += np.nanmean(np.abs(s - o)/(o+0.01))
+    return e
 
 if __name__ == "__main__":
     elfi.set_client('multiprocessing')
@@ -148,31 +185,12 @@ if __name__ == "__main__":
     if len(sys.argv) != 2:
         raise "no population file was given"
 
-    # (cumulative) deaths every day from 1st of march
-    deaths = [0]*20 + [1, 1, 1, 1, 3, 4, 7, 9, 11, 13, 17, 17, 19, 20, 25, 27,
-            27, 34, 40, 42, 47, 49, 56, 59, 64, 72, 75]
-
-    # In ICU
-    hospitalized = [np.nan]*24 + [22, 24, 32, 31, 41, 49, 56, 62, 65, 72, 73,
-            76, 81, 83, 82, 82, 81, 80, 77, 74, 75, 75, 76]
-
-    # total hospitalized
-    # hospitalized = [np.nan]*24 + [82, 96, 108, 112, 134, 143, 137, 159, 160,
-    #         180, 187, 209, 228, 231, 239, 244, 236, 235, 235, 230, 232, 226,
-    #         215]
-
-    observed = np.array(list(zip(deaths, hospitalized)))
-
     population_filename = sys.argv[1]
-    model, sim, univariate_params, multivar_params, \
-            initial_condition_parameters = sim_node(
-                    population_filename, observed)
-
-    dist = elfi.Distance('euclidean', sim, model=model)
-    log_d = elfi.Operation(np.log, dist)
+    model, dist, univariate_params, multivar_params, \
+            initial_condition_parameters = kisdi_model(population_filename)
 
     sampler = elfi.Rejection(dist, batch_size=100, seed=42)
-    results = sampler.sample(1000, quantile=0.001)
+    results = sampler.sample(1000, quantile=0.01)
     results.summary()
 
     for k, v in results.sample_means.items():
