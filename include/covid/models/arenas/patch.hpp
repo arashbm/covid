@@ -40,6 +40,7 @@ namespace covid {
             const config_type& c,
             const population_type& in_population,
             const population_type& out_population) const;
+
       private:
         population_type _population;  // population[age_group][compartment]
         double _area;

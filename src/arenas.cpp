@@ -90,11 +90,9 @@ namespace covid {
           const patch::population_type& in_population,
           const patch::population_type& out_population,
           double normalization_factor) const {
-
         double n_eff = 0.0;
         for (auto&& h: arenas::all_age_groups)
           n_eff += effective_population(h, c, in_population, out_population);
-
 
         double contacts =
           normalization_factor*c.k[g]*

@@ -54,7 +54,7 @@ TEST_CASE("patch", "[covid::models::kisdi::patch]") {
         {1., 2., 3., 4., 5., 6., 7., 8.},
       });
 
-    auto delta = patch.delta(conf);
+    auto delta = patch.delta(conf, 1.0);
 
     for (auto&& g: kisdi::all_age_groups)
       REQUIRE_THAT(delta[g].sum(), WithinAbs(0.0, 1e-10));
@@ -68,7 +68,7 @@ TEST_CASE("patch", "[covid::models::kisdi::patch]") {
         {100., 0., 0., 0., 0., 100., 100., 100.},  // Elderly
       });
 
-    auto delta = patch.delta(conf);
+    auto delta = patch.delta(conf, 1.0);
 
     for (auto&& g: kisdi::all_age_groups) {
         REQUIRE_THAT(
@@ -97,7 +97,7 @@ TEST_CASE("patch", "[covid::models::kisdi::patch]") {
         {100., 0., 10., 10., 10., 0., 0., 0.},  // Elderly
       });
 
-    auto delta = patch.delta(conf);
+    auto delta = patch.delta(conf, 1.0);
 
     for (auto&& g: kisdi::all_age_groups) {
         REQUIRE_THAT(
@@ -119,7 +119,7 @@ TEST_CASE("patch", "[covid::models::kisdi::patch]") {
         {100., 0., 10., 10., 10., 0., 0., 0.},  // Elderly
       });
 
-    auto delta = patch.delta(conf);
+    auto delta = patch.delta(conf, 1.0);
 
     for (auto&& g: kisdi::all_age_groups) {
         REQUIRE_THAT(

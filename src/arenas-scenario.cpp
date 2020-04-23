@@ -3,8 +3,6 @@
 #include <iostream>
 #include <cmath>
 
-#include <fenv.h>
-
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"  // not working (gcc bug?)
@@ -88,8 +86,6 @@ void report_totals(double t,
 }
 
 int main(int argc , char* argv[]) {
-  feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);
-
   args::ArgumentParser parser(
       "This is a test program.", "This goes after the options.");
   args::HelpFlag help(parser, "help", "Display this help menu", {'h', "help"});

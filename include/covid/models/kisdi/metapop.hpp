@@ -51,7 +51,7 @@ namespace covid {
       using compartment_array_type =
         categorical_array<T, compartments, all_compartments.size()>;
 
-      using contact_matrix_type =age_array_type<age_array_type<double>>;
+      using contact_matrix_type = age_array_type<age_array_type<double>>;
     }  // namespace kisdi
   }  // namespace models
 }  // namespace covid

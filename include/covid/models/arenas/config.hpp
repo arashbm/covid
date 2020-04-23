@@ -9,7 +9,7 @@ namespace covid {
   namespace models {
     namespace arenas {
       struct config {
-        age_array_type<double> eta, alpha, mu, psi, chi; //rates
+        age_array_type<double> eta, alpha, mu, psi, chi;
 
         age_array_type<double> omega, gamma, p, k;
 
