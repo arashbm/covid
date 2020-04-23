@@ -31,7 +31,14 @@
 *.out
 *.app
 
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+
 tests
-municipalities
+arenas_scenario
+kisdi_scenario
 figures/
 out/

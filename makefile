@@ -17,7 +17,8 @@ CXXFLAGS = -Werror -Wall -Wextra -Wconversion \
 					 -std=c++17 \
 					 -g\
 					 -Idep/catch2/single_include/catch2 \
-					 -Idep/csv-parser/single_include/
+					 -Idep/csv-parser/single_include/ \
+					 -Idep/args/
 
 LD = $(CXX)
 LDLIBS = -static-libstdc++ -lpthread
@@ -45,15 +46,36 @@ clean:
 	$(RM) -r $(OBJDIR) $(DEPDIR)
 
 .PHONY: figures
-figures: municipalities
+figures: kisdi_scenario
 	$(eval RESDIR := $(shell mktemp -d))
 	@mkdir $(RESDIR)
-	./municipalities > $(RESDIR)/municipalities.csv
+	./kisdi_scenario \
+		-p data/age-distribution-municipalities-arenas.csv \
+		-i data/initial-condition-municipalities-arenas.csv \
+		-c data/model-config-kisdi.csv \
+		-t 50 \
+		> $(RESDIR)/kisdi-municipalities.csv
+	./kisdi_scenario \
+		-p data/age-distribution-whole-country-arenas.csv \
+		-i data/initial-condition-whole-country-arenas.csv \
+		-c data/model-config-kisdi.csv \
+		-t 50 \
+		> $(RESDIR)/kisdi-country.csv
 	@mkdir -p figures
-	python visualisations/spreading.py $(RESDIR)/municipalities.csv
+	python visualisations/spreading.py $(RESDIR)/kisdi-municipalities.csv \
+		> figures/kisdi-municipalities.pdf
+	python visualisations/spreading.py $(RESDIR)/kisdi-country.csv \
+		> figures/kisdi-country.pdf
 	$(shell rm -rf $(RESDIR))
 
-municipalities: $(OBJDIR)/kisdi.o $(OBJDIR)/municipalities.o
+kisdi_scenario: $(OBJDIR)/kisdi.o \
+								$(OBJDIR)/kisdi-scenario.o \
+								$(OBJDIR)/gravity.o
+	$(LINK.o)
+
+arenas_scenario: $(OBJDIR)/arenas.o \
+								$(OBJDIR)/arenas-scenario.o \
+								$(OBJDIR)/gravity.o
 	$(LINK.o)
 
 tests: $(TSTOBJDIR)/tests.o \

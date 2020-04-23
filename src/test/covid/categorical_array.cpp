@@ -21,6 +21,10 @@ TEST_CASE("categorical_array", "[covid::categorical_array]") {
     REQUIRE(t[test_enums::third]  == 3);
   }
 
+  SECTION("sum") {
+    REQUIRE(t.sum()  == 6);
+  }
+
   SECTION("copy semantics") {
     auto t2 = t;
 
@@ -51,6 +55,17 @@ TEST_CASE("categorical_array", "[covid::categorical_array]") {
       REQUIRE(deep_t[test_enums::second][test_enums::second] == 5);
       REQUIRE(deep_t[test_enums::second][test_enums::third]  == 6);
     }
+
+    SECTION("sum") {
+      auto s = deep_t.sum();
+
+      REQUIRE(s[test_enums::first]  == 12);
+      REQUIRE(s[test_enums::second] == 15);
+      REQUIRE(s[test_enums::third]  == 18);
+
+      REQUIRE(s.sum()  == 45);
+    }
+
 
     SECTION("assignment") {
       deep_t[test_enums::second][test_enums::third] = 42;

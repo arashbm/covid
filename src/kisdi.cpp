@@ -1,10 +1,56 @@
 #include <algorithm>
+#include <string>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wunknown-pragmas"  // not working (gcc bug?)
+#include "csv.hpp"
+#pragma GCC diagnostic pop
 
 #include "../include/covid/models/kisdi/patch.hpp"
+#include "../include/covid/models/kisdi/config.hpp"
 
 namespace covid {
   namespace models {
     namespace kisdi {
+      config::config(const std::string& model_config_filename) {
+        csv::CSVReader reader(model_config_filename);
+        for (auto&& row: reader) {
+          std::string n = row[0].get<>();
+          double v = row[1].get<double>();
+          if (n == "beta_infected") beta_infected = v;
+          else if (n == "beta_asymptomatic") beta_asymptomatic = v;
+          else if (n == "beta_presymptomatic") beta_presymptomatic = v;
+          else if (n == "pi") pi = v;
+          else if (n == "kappa") kappa = v;
+          else if (n == "reciprocal_eta") eta = 1.0/v;
+          else if (n == "reciprocal_alpha") alpha = 1.0/v;
+          else if (n == "reciprocal_theta") theta = 1.0/v;
+          else if (n == "reciprocal_nu") nu = 1.0/v;
+          else if (n == "reciprocal_rho") rho = 1.0/v;
+          else if (n == "reciprocal_chi") chi = 1.0/v;
+          else if (n == "reciprocal_delta") delta = 1.0/v;
+          else if (n == "c_yy")
+            contact[age_groups::young][age_groups::young] = v;
+          else if (n == "c_ym")
+            contact[age_groups::young][age_groups::adults] = v;
+          else if (n == "c_yo")
+            contact[age_groups::young][age_groups::elderly] = v;
+          else if (n == "c_my")
+            contact[age_groups::adults][age_groups::young] = v;
+          else if (n == "c_mm")
+            contact[age_groups::adults][age_groups::adults] = v;
+          else if (n == "c_mo")
+            contact[age_groups::adults][age_groups::elderly] = v;
+          else if (n == "c_oy")
+            contact[age_groups::elderly][age_groups::young] = v;
+          else if (n == "c_om")
+            contact[age_groups::elderly][age_groups::adults] = v;
+          else if (n == "c_oo")
+            contact[age_groups::elderly][age_groups::elderly] = v;
+        }
+      }
+
       double
       patch::force_of_infecton(age_groups g, const config_type& c) const {
         double lambda = 0.0;
@@ -45,16 +91,15 @@ namespace covid {
           + c.kappa*_population[g][compartments::infected];
       }
 
-      patch::patch(const population_type& population) {
-        _population = population;
-      }
+      patch::patch(const population_type& population)
+        : _population(population) {}
 
       const patch::population_type& patch::population() const {
         return _population;
       }
 
       patch::population_type
-      patch::delta(const config_type& c) const {
+      patch::delta(const config_type& c, double dt) const {
         population_type delta;
         for (auto&& g: all_age_groups) {
           double lambda = force_of_infecton(g, c);
@@ -91,7 +136,7 @@ namespace covid {
             +c.chi*_population[g][compartments::hospitalized];
         }
 
-        return delta;
+        return delta*dt;
       }
 
       void patch::apply_delta(const population_type& pop_delta) {

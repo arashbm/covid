@@ -1,5 +1,5 @@
-#ifndef INCLUDE_COVID_MODELS_KISDI_METAPOP_HPP_
-#define INCLUDE_COVID_MODELS_KISDI_METAPOP_HPP_
+#ifndef INCLUDE_COVID_MODELS_ARENAS_METAPOP_HPP_
+#define INCLUDE_COVID_MODELS_ARENAS_METAPOP_HPP_
 
 #include <array>
 
@@ -7,23 +7,21 @@
 
 namespace covid {
   namespace models {
-    namespace kisdi {
+    namespace arenas {
       enum class compartments : size_t {
         susceptible,     // (S)
         exposed,         // (E)
         asymptomatic,    // (A)
-        presymptomatic,  // (P)
         infected,        // (I)
         hospitalized,    // (H) in ICU
         dead,            // (D)
         recovered,       // (R)
       };
 
-      constexpr std::array<compartments, 8> all_compartments = {
+      constexpr std::array<compartments, 7> all_compartments = {
         compartments::susceptible,
         compartments::exposed,
         compartments::asymptomatic,
-        compartments::presymptomatic,
         compartments::infected,
         compartments::hospitalized,
         compartments::dead,
@@ -51,9 +49,9 @@ namespace covid {
       using compartment_array_type =
         categorical_array<T, compartments, all_compartments.size()>;
 
-      using contact_matrix_type =age_array_type<age_array_type<double>>;
-    }  // namespace kisdi
+      using contact_matrix_type = age_array_type<age_array_type<double>>;
+    }  // namespace arenas
   }  // namespace models
 }  // namespace covid
 
-#endif  // INCLUDE_COVID_MODELS_KISDI_METAPOP_HPP_
+#endif  // INCLUDE_COVID_MODELS_ARENAS_METAPOP_HPP_

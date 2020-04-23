@@ -14,6 +14,7 @@ namespace covid {
         contact_matrix_type contact = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
 
         config() = default;
+        explicit config(const std::string& model_config_filename);
       };
     }  // namespace kisdi
   }  // namespace models

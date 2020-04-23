@@ -10,15 +10,14 @@ namespace covid {
     namespace kisdi {
       class patch {
       public:
-        using population_type = age_array_type<
-          categorical_array<double, compartments, all_compartments.size()>>;
+        using population_type = age_array_type<compartment_array_type<double>>;
 
         using config_type = config;
 
         explicit patch(const population_type& population);
 
         const population_type& population() const;
-        population_type delta(const config_type& c) const;
+        population_type delta(const config_type& c, double dt) const;
         void apply_delta(const population_type& pop_delta);
 
       private:
