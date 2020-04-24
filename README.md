@@ -1,8 +1,9 @@
 # covid
-![Tests](https://github.com/arashbm/covid/workflows/Tests/badge.svg) ![Lint](https://github.com/arashbm/covid/workflows/Lint/badge.svg)
+![Tests](https://github.com/arashbm/covid/workflows/Tests/badge.svg)
+![Lint](https://github.com/arashbm/covid/workflows/Lint/badge.svg)
 
-Implementation of model from [Arenas et al.][arenas] and revisions by Eva Kisdi
-and others.
+Implementation of model from [Arenas et al.][arenas] and the revised version of
+the same by Eva Kisdi and others.
 
 [arenas]: https://doi.org/10.1101/2020.03.21.20040022
 
