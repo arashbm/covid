@@ -11,6 +11,9 @@ namespace covid {
     std::array<T, size> _ar;
 
   public:
+    using item_type = T;
+    using index_type = I;
+
     categorical_array() {
       _ar.fill(T{});
     }
@@ -23,8 +26,13 @@ namespace covid {
         _ar[i] = *(args.begin()+i);
     }
 
-    const T& operator[](I ind) const { return _ar[static_cast<size_t>(ind)]; }
-    T& operator[](I ind) { return _ar[static_cast<size_t>(ind)]; }
+    const item_type& operator[](index_type ind) const {
+      return _ar[static_cast<size_t>(ind)];
+    }
+
+    item_type& operator[](index_type ind) {
+      return _ar[static_cast<size_t>(ind)];
+    }
 
     // summs across first axis
     T sum() const {
