@@ -7,3 +7,6 @@
 [submodule "dep/args"]
 	path = dep/args
 	url = https://github.com/Taywee/args.git
+[submodule "dep/magic_enum"]
+	path = dep/magic_enum
+	url = https://github.com/Neargye/magic_enum.git
