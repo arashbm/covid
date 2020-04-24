@@ -18,6 +18,7 @@ CXXFLAGS = -Werror -Wall -Wextra -Wconversion \
 					 -g\
 					 -Idep/catch2/single_include/catch2 \
 					 -Idep/csv-parser/single_include/ \
+					 -Idep/magic_enum/include/ \
 					 -Idep/args/
 
 LD = $(CXX)
@@ -96,8 +97,10 @@ arenas_scenario: $(OBJDIR)/arenas.o \
 
 tests: $(TSTOBJDIR)/tests.o \
 			 $(TSTOBJDIR)/kisdi.o \
+			 $(TSTOBJDIR)/geo.o \
 			 $(TSTOBJDIR)/categorical_array.o \
-			 $(OBJDIR)/kisdi.o
+			 $(OBJDIR)/kisdi.o\
+			 $(OBJDIR)/geo.o
 	$(LINK.o)
 
 BUILD_DIRS := $(DEPDIR) $(TSTDEPDIR) $(OBJDIR) $(TSTOBJDIR)
