@@ -7,7 +7,7 @@ using Catch::Matchers::WithinAbs;
 
 namespace kisdi = covid::models::kisdi;
 
-TEST_CASE("patch", "[covid::models::kisdi::patch]") {
+TEST_CASE("kisdi::patch", "[covid::models::kisdi::patch]") {
   kisdi::patch::config_type conf;
   conf.pi = 1.0/2.0;
   conf.eta = 1.0/2.34;

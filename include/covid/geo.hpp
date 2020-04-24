@@ -18,7 +18,7 @@ namespace covid {
     struct lla {
       long double latitude, longitude, altitude;
 
-      lla(long double lat, long double lon, long double alt=0.0L);
+      lla(long double lat, long double lon, long double alt = 0.0L);
       lla();
       explicit lla(const ecef& ec);
 

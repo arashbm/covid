@@ -5,9 +5,9 @@
 namespace covid {
   namespace geo {
     lla::lla(long double lat, long double lon, long double alt)
-        : latitude(lat), longitude(lon), altitude(alt) {};
+        : latitude(lat), longitude(lon), altitude(alt) {}
     lla::lla()
-        : latitude(0.0L), longitude(0.0L), altitude(0.0L) {};
+        : latitude(0.0L), longitude(0.0L), altitude(0.0L) {}
 
     lla::lla(const ecef& ec) {
       // Ferrari's solution
@@ -47,8 +47,8 @@ namespace covid {
     }
 
     ecef::ecef(long double ix, long double iy, long double iz)
-      : x(ix), y(iy), z(iz) {};
-    ecef::ecef() : x(0.0L), y(0.0L), z(0.0L) {};
+      : x(ix), y(iy), z(iz) {}
+    ecef::ecef() : x(0.0L), y(0.0L), z(0.0L) {}
     ecef::ecef(const lla& latlong) {
       long double center_alt = latlong.prime_vertical_radius()+latlong.altitude;
       x = center_alt*
