@@ -197,7 +197,9 @@ namespace covid {
 
           delta[g][compartments::hospitalized] =
             +c.mu[g]*c.gamma[g]*_population[g][compartments::infected]
-            -c.psi[g]*_population[g][compartments::hospitalized];
+            -c.omega[g]*(c.psi[g]-c.chi[g])*
+              _population[g][compartments::hospitalized]
+            -c.chi[g]*_population[g][compartments::hospitalized];
 
           delta[g][compartments::dead] =
             +c.omega[g]*c.psi[g]*_population[g][compartments::hospitalized];

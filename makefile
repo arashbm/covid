@@ -97,9 +97,11 @@ arenas_scenario: $(OBJDIR)/arenas.o \
 
 tests: $(TSTOBJDIR)/tests.o \
 			 $(TSTOBJDIR)/kisdi.o \
+			 $(TSTOBJDIR)/arenas.o \
 			 $(TSTOBJDIR)/geo.o \
 			 $(TSTOBJDIR)/categorical_array.o \
 			 $(OBJDIR)/kisdi.o\
+			 $(OBJDIR)/arenas.o\
 			 $(OBJDIR)/geo.o
 	$(LINK.o)
 
