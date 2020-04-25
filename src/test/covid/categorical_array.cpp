@@ -13,8 +13,7 @@ constexpr std::array<test_enums, 3> all_test_enums = {
 
 
 TEST_CASE("categorical_array", "[covid::categorical_array]") {
-  covid::categorical_array<int, test_enums, all_test_enums.size()>
-    t = {1, 2, 3};
+  covid::categorical_array<int, test_enums> t = {1, 2, 3};
   SECTION("initialisation") {
     REQUIRE(t[test_enums::first]  == 1);
     REQUIRE(t[test_enums::second] == 2);
@@ -46,8 +45,7 @@ TEST_CASE("categorical_array", "[covid::categorical_array]") {
 
   SECTION("nested array") {
     covid::categorical_array<
-      covid::categorical_array<int, test_enums, all_test_enums.size()>,
-      test_enums, all_test_enums.size()>
+      covid::categorical_array<int, test_enums>, test_enums>
         deep_t = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
 
     SECTION("initialisation") {
@@ -98,7 +96,7 @@ TEST_CASE("categorical_array", "[covid::categorical_array]") {
     }
 
     SECTION("addition to array") {
-      covid::categorical_array<int, test_enums, all_test_enums.size()>
+      covid::categorical_array<int, test_enums>
         t2 = {3, 4, 5};
       auto r = t + t2;
 
@@ -113,8 +111,7 @@ TEST_CASE("categorical_array", "[covid::categorical_array]") {
     }
 
     SECTION("deduction from array") {
-      covid::categorical_array<int, test_enums, all_test_enums.size()>
-        t2 = {5, 4, 3};
+      covid::categorical_array<int, test_enums> t2 = {5, 4, 3};
       auto r = t - t2;
 
       REQUIRE(r[test_enums::first]  == -4);
