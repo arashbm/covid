@@ -7,14 +7,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Install GCC 8
+    - name: Install GCC 9
       run: |
         sudo apt-get -qy update
-        sudo apt-get install g++-8
+        sudo apt-get install g++-9
     - uses: actions/checkout@v1
       with:
         submodules: true
     - name: g++ version
-      run: g++-8 -v
+      run: g++-9 -v
     - name: Run tests
-      run: make CXX=g++-8 check
+      run: make CXX=g++-9 check
