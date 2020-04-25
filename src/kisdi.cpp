@@ -5,6 +5,7 @@
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"  // not working (gcc bug?)
 #include "csv.hpp"
+#include "magic_enum.hpp"
 #pragma GCC diagnostic pop
 
 #include "../include/covid/models/kisdi/patch.hpp"
@@ -55,7 +56,7 @@ namespace covid {
       patch::force_of_infecton(age_groups g, const config_type& c) const {
         double lambda = 0.0;
         contact_matrix_type contacts = contact_function(c);
-        for (auto&& h: all_age_groups) {
+        for (auto&& h: magic_enum::enum_values<age_groups>()) {
           double x_h = contact_making_population(h, c);
           lambda += contacts[g][h]*
             (c.beta_asymptomatic*_population[h][compartments::asymptomatic] +
@@ -68,9 +69,9 @@ namespace covid {
       contact_matrix_type patch::contact_function(
           const config_type& c) const {
         contact_matrix_type contact;
-        for (auto&& g: all_age_groups) {
+        for (auto&& g: magic_enum::enum_values<age_groups>()) {
           double x_g = contact_making_population(g, c);
-          for (auto&& h: all_age_groups) {
+          for (auto&& h: magic_enum::enum_values<age_groups>()) {
             double x_h = contact_making_population(h, c);
             contact[g][h] = std::min(
                 c.contact[g][h]*x_g,
@@ -101,7 +102,7 @@ namespace covid {
       patch::population_type
       patch::delta(const config_type& c, double dt) const {
         population_type delta;
-        for (auto&& g: all_age_groups) {
+        for (auto&& g: magic_enum::enum_values<age_groups>()) {
           double lambda = force_of_infecton(g, c);
 
           delta[g][compartments::susceptible] =

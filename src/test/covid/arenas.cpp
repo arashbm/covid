@@ -42,7 +42,7 @@ TEST_CASE("arenas::patch", "[covid::models::arenas::patch]") {
     REQUIRE(patch.area() == 1.0);
 
     auto p = patch.population();
-    for (auto&& g: arenas::all_age_groups) {
+    for (auto&& g: magic_enum::enum_values<arenas::age_groups>()) {
       REQUIRE(p[g][arenas::compartments::susceptible]    == 1.0);
       REQUIRE(p[g][arenas::compartments::exposed]        == 2.0);
       REQUIRE(p[g][arenas::compartments::asymptomatic]   == 3.0);
@@ -63,7 +63,7 @@ TEST_CASE("arenas::patch", "[covid::models::arenas::patch]") {
     auto delta = patch.delta(conf, 1.0,
         in_population, out_population, normalization_factor, external_pi);
 
-    for (auto&& g: arenas::all_age_groups)
+    for (auto&& g: magic_enum::enum_values<arenas::age_groups>())
       REQUIRE_THAT(delta[g].sum(), WithinAbs(0.0, 1e-10));
   }
 
@@ -79,7 +79,7 @@ TEST_CASE("arenas::patch", "[covid::models::arenas::patch]") {
         in_population, out_population, normalization_factor, external_pi);
 
 
-    for (auto&& g: arenas::all_age_groups) {
+    for (auto&& g: magic_enum::enum_values<arenas::age_groups>()) {
         REQUIRE_THAT(
             delta[g][arenas::compartments::exposed],
             WithinAbs(0.0, 1e-5));
@@ -108,7 +108,7 @@ TEST_CASE("arenas::patch", "[covid::models::arenas::patch]") {
     auto delta = patch.delta(conf, 1.0,
         in_population, out_population, normalization_factor, external_pi);
 
-    for (auto&& g: arenas::all_age_groups) {
+    for (auto&& g: magic_enum::enum_values<arenas::age_groups>()) {
         REQUIRE_THAT(
             delta[g][arenas::compartments::exposed],
             WithinAbs(0.0, 1e-5));
@@ -132,7 +132,7 @@ TEST_CASE("arenas::patch", "[covid::models::arenas::patch]") {
         in_population, out_population, normalization_factor, external_pi);
 
 
-    for (auto&& g: arenas::all_age_groups) {
+    for (auto&& g: magic_enum::enum_values<arenas::age_groups>()) {
         REQUIRE_THAT(
             delta[g][arenas::compartments::exposed],
             WithinAbs(0.0, 1e-5));

@@ -91,7 +91,7 @@ namespace covid {
           const patch::population_type& out_population,
           double normalization_factor) const {
         double n_eff = 0.0;
-        for (auto&& h: arenas::all_age_groups)
+        for (auto&& h: magic_enum::enum_values<age_groups>())
           n_eff += effective_population(h, c, in_population, out_population);
 
         double contacts =
@@ -100,7 +100,7 @@ namespace covid {
 
         double total_infected_exponents = 0.0;
         double total_asymptomatic_exponents = 0.0;
-        for (auto&& h: arenas::all_age_groups) {
+        for (auto&& h: magic_enum::enum_values<age_groups>()) {
           double in_infected =
             + _population[h][compartments::infected]
             - c.p[h]*out_population[h][compartments::infected]
@@ -129,7 +129,7 @@ namespace covid {
           const patch::population_type& in_population,
           const patch::population_type& out_population) const {
         double n_eff = 0.0;
-        for (auto&& h: arenas::all_age_groups)
+        for (auto&& h: magic_enum::enum_values<age_groups>())
           n_eff += effective_population(h, c, in_population, out_population);
 
         return contact_function(n_eff/_area, c)*
@@ -169,7 +169,7 @@ namespace covid {
           age_array_type<double> normalization_factor,
           age_array_type<double> external_pi) const {
         population_type delta;
-        for (auto&& g: all_age_groups) {
+        for (auto&& g: magic_enum::enum_values<age_groups>()) {
           double r_ii =
             (_population[g] - out_population[g]).sum()/_population[g].sum();
           double pi = external_pi[g] + ((1.0 - c.p[g]) + c.p[g]*r_ii)*

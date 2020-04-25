@@ -7,12 +7,14 @@
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"  // not working (gcc bug?)
 #include "csv.hpp"
+#include "magic_enum.hpp"
 #pragma GCC diagnostic pop
 #include "args.hxx"
 
 #include "../include/covid/models/arenas/metapop.hpp"
 #include "../include/covid/models/arenas/patch.hpp"
 #include "../include/covid/mobility/gravity.hpp"
+#include "report.tpp"
 namespace arenas = covid::models::arenas;
 
 
@@ -41,7 +43,7 @@ create_patches(
 
   csv::CSVReader population_reader(population_filename);
   for (auto&& row: population_reader) {
-    for (auto&& g: arenas::all_age_groups) {
+    for (auto&& g: magic_enum::enum_values<arenas::age_groups>()) {
       std::string id = row["Area"].get<>();
       pops[id][g][arenas::compartments::susceptible] =
         row[age_group_columns[g]].get<double>();
@@ -69,20 +71,6 @@ create_patches(
     patches.try_emplace(i, pop, surface_area[i]);
 
   return patches;
-}
-
-void report_totals(double t,
-    const std::unordered_map<std::string, arenas::patch>& patches) {
-  covid::categorical_array<
-    double, arenas::compartments, arenas::all_compartments.size()>
-    totals;
-  for (auto& p: patches)
-    totals += p.second.population().sum();
-
-  std::cout << t << " " << totals.sum();
-  for (auto&& c: arenas::all_compartments)
-    std::cout << " " << totals[c];
-  std::cout << "\n";
 }
 
 int main(int argc , char* argv[]) {
@@ -144,11 +132,18 @@ int main(int argc , char* argv[]) {
 
   arenas::patch::config_type conf(args::get(model_config_filename));
 
+  std::vector<std::string> notable_patches = {};  // TODO
+
+  auto compartments_array = magic_enum::enum_values<arenas::compartments>();
+  std::vector<arenas::compartments> reported_compartments(
+      compartments_array.begin(), compartments_array.end());
+
   size_t dt = 1, t_max = args::get(simulation_days)*24;
   size_t report_dt = 24, next_report = 0;
 
-  std::cout << "t total susceptible exposed asymptomatic infected hospitalized "
-    "dead recovered\n";
+  covid::report::population_report_header(
+      notable_patches, reported_compartments,
+      std::cout);
 
   std::unordered_map<std::string,
     std::optional<covid::mobility::gravity::hint_type>> hints_from, hints_to;
@@ -159,7 +154,9 @@ int main(int argc , char* argv[]) {
 
     if (t == next_report) {
       next_report += report_dt;
-      report_totals(time_days, patches);
+      covid::report::age_grouped_population_report(
+          time_days, patches, notable_patches, reported_compartments,
+          std::cout);
     }
 
     std::vector<std::pair<std::string, arenas::patch::population_type>>
@@ -183,7 +180,7 @@ int main(int argc , char* argv[]) {
       hints_from[i] = hint_from;
 
       arenas::age_array_type<double> normalization_factor = {1.0, 1.0, 1.0};
-      for (auto&& g: arenas::all_age_groups) {
+      for (auto&& g: magic_enum::enum_values<arenas::age_groups>()) {
         double total_pop = 0.0;
         double total_denominator = 0.0;
         for (auto &[i, patch_i]: patches) {
@@ -199,7 +196,7 @@ int main(int argc , char* argv[]) {
 
       arenas::age_array_type<double> external_pi = {0, 0, 0};
       for (auto &[j, trips_per_dt]: mobility_from)
-        for (auto&& g: arenas::all_age_groups)
+        for (auto&& g: magic_enum::enum_values<arenas::age_groups>())
           external_pi[g] +=
             conf.p[g]*patches.at(j).prob_contracting(g, conf,
                 in_population, out_population, normalization_factor[g]) *

@@ -19,37 +19,19 @@ namespace covid {
         recovered,       // (R)
       };
 
-      constexpr std::array<compartments, 8> all_compartments = {
-        compartments::susceptible,
-        compartments::exposed,
-        compartments::asymptomatic,
-        compartments::presymptomatic,
-        compartments::infected,
-        compartments::hospitalized,
-        compartments::dead,
-        compartments::recovered,
-      };
-
       enum class age_groups : size_t {
         young,    // (Y) age <= 25
         adults,   // (M) 26 <= age <= 65
         elderly,  // (O) 66 <= age
       };
 
-      constexpr std::array<age_groups, 3> all_age_groups = {
-        age_groups::young,
-        age_groups::adults,
-        age_groups::elderly,
-      };
-
-
       template <typename T>
       using age_array_type =
-        categorical_array<T, age_groups, all_age_groups.size()>;
+        categorical_array<T, age_groups>;
 
       template <typename T>
       using compartment_array_type =
-        categorical_array<T, compartments, all_compartments.size()>;
+        categorical_array<T, compartments>;
 
       using contact_matrix_type = age_array_type<age_array_type<double>>;
     }  // namespace kisdi

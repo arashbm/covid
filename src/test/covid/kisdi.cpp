@@ -35,7 +35,7 @@ TEST_CASE("kisdi::patch", "[covid::models::kisdi::patch]") {
 
     auto p = patch.population();
 
-    for (auto&& g: kisdi::all_age_groups) {
+    for (auto&& g: magic_enum::enum_values<kisdi::age_groups>()) {
       REQUIRE(p[g][kisdi::compartments::susceptible]    == 1.0);
       REQUIRE(p[g][kisdi::compartments::exposed]        == 2.0);
       REQUIRE(p[g][kisdi::compartments::asymptomatic]   == 3.0);
@@ -56,7 +56,7 @@ TEST_CASE("kisdi::patch", "[covid::models::kisdi::patch]") {
 
     auto delta = patch.delta(conf, 1.0);
 
-    for (auto&& g: kisdi::all_age_groups)
+    for (auto&& g: magic_enum::enum_values<kisdi::age_groups>())
       REQUIRE_THAT(delta[g].sum(), WithinAbs(0.0, 1e-10));
   }
 
@@ -70,7 +70,7 @@ TEST_CASE("kisdi::patch", "[covid::models::kisdi::patch]") {
 
     auto delta = patch.delta(conf, 1.0);
 
-    for (auto&& g: kisdi::all_age_groups) {
+    for (auto&& g: magic_enum::enum_values<kisdi::age_groups>()) {
         REQUIRE_THAT(
             delta[g][kisdi::compartments::exposed],
             WithinAbs(0.0, 1e-5));
@@ -99,7 +99,7 @@ TEST_CASE("kisdi::patch", "[covid::models::kisdi::patch]") {
 
     auto delta = patch.delta(conf, 1.0);
 
-    for (auto&& g: kisdi::all_age_groups) {
+    for (auto&& g: magic_enum::enum_values<kisdi::age_groups>()) {
         REQUIRE_THAT(
             delta[g][kisdi::compartments::exposed],
             WithinAbs(0.0, 1e-5));
@@ -121,7 +121,7 @@ TEST_CASE("kisdi::patch", "[covid::models::kisdi::patch]") {
 
     auto delta = patch.delta(conf, 1.0);
 
-    for (auto&& g: kisdi::all_age_groups) {
+    for (auto&& g: magic_enum::enum_values<kisdi::age_groups>()) {
         REQUIRE_THAT(
             delta[g][kisdi::compartments::exposed],
             WithinAbs(0.0, 1e-5));

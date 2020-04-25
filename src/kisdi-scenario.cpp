@@ -7,12 +7,14 @@
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"  // not working (gcc bug?)
 #include "csv.hpp"
+#include "magic_enum.hpp"
 #pragma GCC diagnostic pop
 #include "args.hxx"
 
 #include "../include/covid/models/kisdi/metapop.hpp"
 #include "../include/covid/models/kisdi/patch.hpp"
 #include "../include/covid/mobility/gravity.hpp"
+#include "report.tpp"
 namespace kisdi = covid::models::kisdi;
 
 
@@ -41,7 +43,7 @@ create_patches(
 
   csv::CSVReader population_reader(population_filename);
   for (auto&& row: population_reader)
-    for (auto&& g: kisdi::all_age_groups)
+    for (auto&& g: magic_enum::enum_values<kisdi::age_groups>())
       pops[row["Area"].get<>()][g][kisdi::compartments::susceptible] =
         row[age_group_columns[g]].get<double>();
 
@@ -63,24 +65,10 @@ create_patches(
   return patches;
 }
 
-void report_totals(double t,
-    const std::unordered_map<std::string, kisdi::patch>& patches) {
-  covid::categorical_array<
-    double, kisdi::compartments, kisdi::all_compartments.size()>
-    totals;
-  for (auto& p: patches)
-    totals += p.second.population().sum();
-
-  std::cout << t << " " << totals.sum();
-  for (auto&& c: kisdi::all_compartments)
-    std::cout << " " << totals[c];
-  std::cout << "\n";
-}
-
 kisdi::patch::population_type
 mobile_population(kisdi::patch::population_type pop) {
-  for (auto&& g: kisdi::all_age_groups)
-    for (auto&& c: kisdi::all_compartments)
+  for (auto&& g: magic_enum::enum_values<kisdi::age_groups>())
+    for (auto&& c: magic_enum::enum_values<kisdi::compartments>())
       if (c == kisdi::compartments::susceptible ||
           c == kisdi::compartments::exposed ||
           c == kisdi::compartments::asymptomatic ||
@@ -148,11 +136,18 @@ int main(int argc , char* argv[]) {
 
   kisdi::patch::config_type conf(args::get(model_config_filename));
 
+  std::vector<std::string> notable_patches = {};  // TODO
+
+  auto compartments_array = magic_enum::enum_values<kisdi::compartments>();
+  std::vector<kisdi::compartments> reported_compartments(
+      compartments_array.begin(), compartments_array.end());
+
   size_t dt = 1, t_max = args::get(simulation_days)*24;
   size_t report_dt = 24, next_report = 0;
 
-  std::cout << "t total susceptible exposed asymptomatic presymptomatic "
-    "infected hospitalized dead recovered\n";
+  covid::report::population_report_header(
+      notable_patches, reported_compartments,
+      std::cout);
 
   std::unordered_map<std::string,
     std::optional<covid::mobility::gravity::hint_type>> hints_from, hints_to;
@@ -163,7 +158,9 @@ int main(int argc , char* argv[]) {
 
     if (t == next_report) {
       next_report += report_dt;
-      report_totals(time_days, patches);
+      covid::report::age_grouped_population_report(
+          time_days, patches, notable_patches, reported_compartments,
+          std::cout);
     }
 
     std::vector<std::pair<std::string, kisdi::patch::population_type>>
