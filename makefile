@@ -47,7 +47,7 @@ clean:
 	$(RM) -r $(OBJDIR) $(DEPDIR)
 
 .PHONY: figures
-figures: kisdi_scenario
+figures: kisdi_scenario arenas_scenario
 	$(eval RESDIR := $(shell mktemp -d))
 	@mkdir $(RESDIR)
 	./kisdi_scenario \
@@ -92,6 +92,11 @@ kisdi_scenario: $(OBJDIR)/kisdi.o \
 
 arenas_scenario: $(OBJDIR)/arenas.o \
 								$(OBJDIR)/arenas-scenario.o \
+								$(OBJDIR)/gravity.o
+	$(LINK.o)
+
+fhi_scenario: $(OBJDIR)/fhi.o \
+								$(OBJDIR)/fhi-scenario.o \
 								$(OBJDIR)/gravity.o
 	$(LINK.o)
 

@@ -38,7 +38,6 @@ __pycache__/
 venv/
 
 tests
-arenas_scenario
-kisdi_scenario
+*_scenario
 figures/
 out/
