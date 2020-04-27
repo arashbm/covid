@@ -25,7 +25,7 @@ namespace covid {
 
     categorical_array(const std::initializer_list<T>& args) {
       if (size != args.size())
-        throw std::length_error("Argument list size does not match array size");
+        throw std::logic_error("Argument list size does not match array size");
 
       for (size_t i = 0; i < size; i++)
         _ar[i] = *(args.begin()+i);
@@ -66,6 +66,14 @@ namespace covid {
       return o1;
     }
 
+    friend categorical_array<T, I>
+    operator+(categorical_array<T, I> o) {
+      for (size_t i = 0; i < size; i++)
+        o._ar[i] = +o._ar[i];
+      return o;
+    }
+
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
     // it's okay if _ar[i] is uninitialised
@@ -83,6 +91,13 @@ namespace covid {
         const categorical_array<T, I>& o2) {
       o1 -= o2;
       return o1;
+    }
+
+    friend categorical_array<T, I>
+    operator-(categorical_array<T, I> o) {
+      for (size_t i = 0; i < size; i++)
+        o._ar[i] = -o._ar[i];
+      return o;
     }
 
 #define _covid_define_numeric_multiplication(_Tp)   \
