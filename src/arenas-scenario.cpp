@@ -38,7 +38,8 @@ create_patches(
       {arenas::compartments::asymptomatic,   "Asymptomatic"},
       {arenas::compartments::infected,       "Infected"},
       {arenas::compartments::hospitalized,   "Hospitalized"},
-      {arenas::compartments::dead,           "Recovered"},
+      {arenas::compartments::dead,           "Dead"},
+      {arenas::compartments::recovered,      "Recovered"},
     };
 
   csv::CSVReader population_reader(population_filename);

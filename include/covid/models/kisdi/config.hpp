@@ -1,6 +1,8 @@
 #ifndef INCLUDE_COVID_MODELS_KISDI_CONFIG_HPP_
 #define INCLUDE_COVID_MODELS_KISDI_CONFIG_HPP_
 
+#include <string>
+
 #include "metapop.hpp"
 
 namespace covid {

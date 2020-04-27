@@ -38,7 +38,8 @@ create_patches(
       {kisdi::compartments::presymptomatic, "Presymptomatic"},
       {kisdi::compartments::infected,       "Infected"},
       {kisdi::compartments::hospitalized,   "Hospitalized"},
-      {kisdi::compartments::dead,           "Recovered"},
+      {kisdi::compartments::dead,           "Dead"},
+      {kisdi::compartments::recovered,      "Recovered"},
     };
 
   csv::CSVReader population_reader(population_filename);
@@ -69,10 +70,10 @@ kisdi::patch::population_type
 mobile_population(kisdi::patch::population_type pop) {
   for (auto&& g: magic_enum::enum_values<kisdi::age_groups>())
     for (auto&& c: magic_enum::enum_values<kisdi::compartments>())
-      if (c == kisdi::compartments::susceptible ||
-          c == kisdi::compartments::exposed ||
-          c == kisdi::compartments::asymptomatic ||
-          c == kisdi::compartments::presymptomatic)
+      if (c != kisdi::compartments::susceptible &&
+          c != kisdi::compartments::exposed &&
+          c != kisdi::compartments::asymptomatic &&
+          c != kisdi::compartments::presymptomatic)
         pop[g][c] = 0.0;
   return pop;
 }
