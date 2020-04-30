@@ -55,6 +55,7 @@ namespace covid {
           size_t seed) const {
         population_type delta;
         double force = force_of_infection(c, commuting_in_population);
+
         std::mt19937_64 gen(seed);
 
         int x_1 = std::binomial_distribution<int>(
@@ -63,6 +64,9 @@ namespace covid {
 
         int x_inter = std::binomial_distribution<int>(
               _population[compartments::exposed], c.lambda_1*dt)(gen);
+        /* if (_population[compartments::exposed] > 0) */
+        /*   std::cerr << */
+        /*      "\tlambda_1: " << c.lambda_1; */
         delta[compartments::exposed] = x_1 - x_inter;
 
         int x_2 = std::binomial_distribution<int>(

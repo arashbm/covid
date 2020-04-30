@@ -15,7 +15,7 @@
 
 #include "../include/covid/models/fhi/metapop.hpp"
 #include "../include/covid/models/fhi/patch.hpp"
-#include "../include/covid/mobility/gravity.hpp"
+#include "../include/covid/mobility/traffic.hpp"
 #include "../include/covid/hashing.hpp"
 #include "report.tpp"
 namespace fhi = covid::models::fhi;
@@ -111,6 +111,10 @@ int main(int argc , char* argv[]) {
       "population",
       "population file (CSV)",
       {'p', "population"});
+  args::ValueFlag<std::string> mobility_filename(inputs,
+      "mobility",
+      "mobility file (CSV)",
+      {'m', "mobility"});
   args::ValueFlag<std::string> initial_condition_filename(inputs,
       "initial-condition",
       "initial number of exposed people in each municipality (CSV)",
@@ -145,7 +149,9 @@ int main(int argc , char* argv[]) {
         args::get(population_filename),
         args::get(initial_condition_filename));
 
-  covid::mobility::gravity mobility(args::get(population_filename));
+  covid::mobility::traffic mobility(
+      args::get(mobility_filename),
+      args::get(population_filename));
 
   fhi::patch::config_type conf(args::get(model_config_filename));
 
@@ -164,7 +170,7 @@ int main(int argc , char* argv[]) {
       std::cout);
 
   std::unordered_map<std::string,
-    std::optional<covid::mobility::gravity::hint_type>> hints_from;
+    std::optional<covid::mobility::traffic::hint_type>> hints_from;
 
   std::unordered_map<std::pair<std::string, std::string>, double>
     trips_per_day;

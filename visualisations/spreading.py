@@ -10,7 +10,7 @@ if __name__ == "__main__":
 
     cols = {}
     with open(sys.argv[1], newline='') as csvfile:
-        for row in csv.DictReader(csvfile, delimiter=' '):
+        for row in csv.DictReader(csvfile, delimiter=','):
             for k, v in row.items():
                 if k not in cols:
                     cols[k] = []
@@ -28,13 +28,17 @@ if __name__ == "__main__":
     icu = [np.nan]*24 + [22, 24, 32, 31, 41, 49, 56, 62, 65, 72, 73,
             76, 81, 83, 82, 82, 81, 80, 77, 74, 75, 75, 76]
 
-    ax.plot(cols['t'], cols['dead'], label='Dead')
-    ax.plot(range(len(deaths)), deaths, label='Dead (real)', ls='--')
-    ax.plot(cols['t'], cols['infected'], label='Infected')
-    ax.plot(cols['t'], cols['hospitalized'], label='Hospitalised')
-    ax.plot(range(len(hospitalized)), hospitalized, label='Hospitalised (real)', ls='--')
-    ax.plot(range(len(icu)), icu, label='ICU (real)', ls='--')
-    ax.plot(cols['t'], cols['asymptomatic'], label='Asymptomatic')
+    if 'dead' in cols:
+        ax.plot(cols['time'], cols['dead'], label='Dead')
+        ax.plot(range(len(deaths)), deaths, label='Dead (real)', ls='--')
+    if 'infected' in cols:
+        ax.plot(cols['time'], cols['infected'], label='Infected')
+    if 'hospitalized' in cols:
+        ax.plot(cols['time'], cols['hospitalized'], label='Hospitalised')
+        ax.plot(range(len(hospitalized)), hospitalized, label='Hospitalised (real)', ls='--')
+        ax.plot(range(len(icu)), icu, label='ICU (real)', ls='--')
+    if 'asymptomatic' in cols:
+        ax.plot(cols['time'], cols['asymptomatic'], label='Asymptomatic')
 
     ax.set_xlabel('Time (days)')
     ax.set_ylabel('Population')

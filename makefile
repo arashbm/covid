@@ -47,42 +47,60 @@ clean:
 	$(RM) -r $(OBJDIR) $(DEPDIR)
 
 .PHONY: figures
-figures: kisdi_scenario arenas_scenario
+figures: kisdi_scenario arenas_scenario fhi_scenario
 	$(eval RESDIR := $(shell mktemp -d))
 	@mkdir $(RESDIR)
+	@mkdir -p figures
 	./kisdi_scenario \
 		-p data/age-distribution-municipalities-arenas.csv \
 		-i data/initial-condition-municipalities-arenas.csv \
 		-c data/model-config-kisdi.csv \
 		-t 50 \
 		> $(RESDIR)/kisdi-municipalities.csv
+	python visualisations/spreading.py $(RESDIR)/kisdi-municipalities.csv \
+		> figures/kisdi-municipalities.pdf
 	./kisdi_scenario \
 		-p data/age-distribution-whole-country-arenas.csv \
 		-i data/initial-condition-whole-country-arenas.csv \
 		-c data/model-config-kisdi.csv \
 		-t 50 \
 		> $(RESDIR)/kisdi-country.csv
+	python visualisations/spreading.py $(RESDIR)/kisdi-country.csv \
+		> figures/kisdi-country.pdf
 	./arenas_scenario \
 		-p data/age-distribution-municipalities-arenas.csv \
 		-i data/initial-condition-municipalities-arenas.csv \
 		-c data/model-config-arenas.csv \
 		-t 50 \
 		> $(RESDIR)/arenas-municipalities.csv
+	python visualisations/spreading.py $(RESDIR)/arenas-municipalities.csv \
+		> figures/arenas-municipalities.pdf
 	./arenas_scenario \
 		-p data/age-distribution-whole-country-arenas.csv \
 		-i data/initial-condition-whole-country-arenas.csv \
 		-c data/model-config-arenas.csv \
 		-t 50 \
 		> $(RESDIR)/arenas-country.csv
-	@mkdir -p figures
-	python visualisations/spreading.py $(RESDIR)/kisdi-municipalities.csv \
-		> figures/kisdi-municipalities.pdf
-	python visualisations/spreading.py $(RESDIR)/kisdi-country.csv \
-		> figures/kisdi-country.pdf
-	python visualisations/spreading.py $(RESDIR)/arenas-municipalities.csv \
-		> figures/arenas-municipalities.pdf
 	python visualisations/spreading.py $(RESDIR)/arenas-country.csv \
 		> figures/arenas-country.pdf
+	./fhi_scenario \
+		-p data/age-distribution-municipalities-arenas.csv \
+		-i data/initial-condition-municipalities-fhi.csv \
+		-c data/model-config-fhi.csv \
+		-m /m/cs/scratch/cv19-telia/badiea1/telia.events \
+		-t 50 \
+		> $(RESDIR)/fhi-municipalities.csv
+	python visualisations/spreading.py $(RESDIR)/fhi-municipalities.csv \
+		> figures/fhi-municipalities.pdf
+	./fhi_scenario \
+		-p data/age-distribution-whole-country-arenas.csv \
+		-i data/initial-condition-whole-country-fhi.csv \
+		-c data/model-config-fhi.csv \
+		-m /m/cs/scratch/cv19-telia/badiea1/telia.events \
+		-t 50 \
+		> $(RESDIR)/fhi-country.csv
+	python visualisations/spreading.py $(RESDIR)/fhi-country.csv \
+		> figures/fhi-country.pdf
 	$(shell rm -rf $(RESDIR))
 
 kisdi_scenario: $(OBJDIR)/kisdi.o \
@@ -97,7 +115,7 @@ arenas_scenario: $(OBJDIR)/arenas.o \
 
 fhi_scenario: $(OBJDIR)/fhi.o \
 								$(OBJDIR)/fhi-scenario.o \
-								$(OBJDIR)/gravity.o
+								$(OBJDIR)/traffic.o
 	$(LINK.o)
 
 tests: $(TSTOBJDIR)/tests.o \

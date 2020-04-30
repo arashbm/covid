@@ -11,7 +11,9 @@ namespace covid {
       using hint_type =
         std::vector<std::tuple<double, std::string, double>>::const_iterator;
 
-      explicit traffic(std::string filename);
+      explicit traffic(
+          const std::string& mobility_filename,
+          const std::string& population_filename);
 
       std::pair<std::vector<std::pair<std::string, double>>, hint_type>
       trips_to(const std::string& destination,
@@ -24,13 +26,15 @@ namespace covid {
           std::optional<hint_type> hint = std::nullopt) const;
 
     private:
-      unordered_map<std::string,
+      std::unordered_map<std::string,
         std::vector<std::tuple<double, std::string, double>>> in, out;
 
       std::pair<std::vector<std::pair<std::string, double>>, hint_type>
-      trips(const std::string& id,
-          double t, double dt,
-          in::iterator begin, in::iterator out,
+      trips(double t, double dt,
+          std::vector<
+            std::tuple<double, std::string, double>>::const_iterator begin,
+          std::vector<
+            std::tuple<double, std::string, double>>::const_iterator end,
           std::optional<hint_type> hint = std::nullopt) const;
     };
   }  // namespace mobility
